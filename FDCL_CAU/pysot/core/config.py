@@ -126,32 +126,23 @@ __C.DATASET.GRAY = 0.0
 __C.DATASET.NAMES = ('A', 'B', 'C')
 
 __C.DATASET.A = CN()
-__C.DATASET.A.ROOT1 = 'D:/DSdata/A/data2/train/normal'
-__C.DATASET.A.ROOT2 = 'D:/DSdata/A/data2/train/pool'
-__C.DATASET.A.ANNO1 = 'D:/DSdata/A/data2/train/normal.json'
-__C.DATASET.A.ANNO2 = 'D:/DSdata/A/data2/train/pool.json'
+__C.DATASET.A.ROOT1 = '/home/one/DSdata/train/A/normal' #'D:/DSdata/A/data2/train/normal'
+__C.DATASET.A.ROOT2 = '/home/one/DSdata/train/A/pool'
+__C.DATASET.A.ANNO1 = '/home/one/DSdata/train/A/normal.json'
+__C.DATASET.A.ANNO2 = '/home/one/DSdata/train/A/pool.json'
 __C.DATASET.A.NUM_USE = 10000
 
 __C.DATASET.B = CN()
-__C.DATASET.B.ROOT1 = 'D:/DSdata/train/B/normal'
-__C.DATASET.B.ROOT2 = 'D:/DSdata/train/B/pool'
-__C.DATASET.B.ANNO1 = 'D:/DSdata/train/B/normal.json'
-__C.DATASET.B.ANNO2 = 'D:/DSdata/train/B/pool.json'
+__C.DATASET.B.ROOT1 = '/home/one/DSdata/train/B/normal'
+__C.DATASET.B.ROOT2 = '/home/one/DSdata/train/B/pool'
+__C.DATASET.B.ANNO1 = '/home/one/DSdata/train/B/normal.json'
+__C.DATASET.B.ANNO2 = '/home/one/DSdata/train/B/pool.json'
 __C.DATASET.B.NUM_USE = 10000
 
 __C.DATASET.C = CN()
 __C.DATASET.C.ROOT = 'D:/DSdata/C'
 __C.DATASET.C.ANNO = 'D:/DSdata/C/train.json'
 __C.DATASET.C.NUM_USE = 100
-
-# __C.DATASET.GOT = CN()
-# __C.DATASET.GOT.ROOT = 'D:/dataset/got/crop511'         # GOT dataset path
-# __C.DATASET.GOT.ANNO = 'D:/dataset/got/train.json'
-# __C.DATASET.GOT.FRAME_RANGE = 50
-# __C.DATASET.GOT.NUM_USE = 100000
-#
-# __C.DATASET.VIDEOS_PER_EPOCH = 600000
-
 
 
 # ------------------------------------------------------------------------ #
@@ -183,7 +174,7 @@ __C.BACKBONE.TRAIN_EPOCH = 10
 # ------------------------------------------------------------------------ #
 __C.HEAD = CN()
 
-__C.HEAD.TYPE = 'b_cls' #'Cossim'
+__C.HEAD.TYPE = 'Cossim' #'b_cls' 'Cossim'
 
 __C.HEAD.KWARGS = CN(new_allowed=True)
 
