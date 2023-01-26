@@ -1,0 +1,69 @@
+META_ARC: "DS_AnomalyDet"
+
+BACKBONE:
+    TYPE: "AutoEncoder" #"WDCNN"
+    PRETRAINED:  ''
+#    TRAIN_LAYERS: ['layer0','layer1','layer2','layer3','layer4','layer5'] # WDCNN
+    TRAIN_LAYERS: ['encoder_layer0','encoder_layer1','encoder_layer2','decoder_layer1', 'decoder_layer2']
+    TRAIN_EPOCH: 10 
+    LAYERS_LR: 0.1
+
+CLASSIFICATOR:
+    TYPE: 'DSClassificator'
+    CONTEXT_AMOUNT: 0.5 
+    STRIDE: 8
+    PENALTY_K: 0.08
+    WINDOW_INFLUENCE: 0.42
+    LR: 0.30
+    w1: 1.0
+    w2: 1.0
+
+LOSS:
+#    TYPE : 'BCE'
+    TYPE : 'MSE'
+#    TYPE : 'CE'
+
+HEAD :
+    TYPE : 'b_cls'
+
+TRAIN:
+    EPOCH: 100
+    START_EPOCH: 0  
+    BATCH_SIZE: 2
+    NUM_GPU: 2
+    BASE_LR: 0.005
+    RESUME: '' #'./snapshot/checkpoint_e871.pth'
+    WEIGHT_DECAY : 0.0001 
+    PRETRAINED: 0
+    OUTPUT_SIZE: 11
+    NUM_WORKERS: 0 #6
+    LOC_WEIGHT: 2.4
+    CLS_WEIGHT: 1.0
+    w1: 1.0
+    w2: 1.0
+    w3: 1.0
+
+    POS_NUM : 16
+    TOTAL_NUM : 64
+    NEG_NUM : 16
+    LARGER: 1.0 
+    range : 1.0 
+    LR:
+        TYPE: 'log'
+        KWARGS:
+            start_lr: 0.01 
+            end_lr: 0.0001
+
+    LR_WARMUP:
+        TYPE: 'step'
+        EPOCH: 5 
+        KWARGS:
+            start_lr: 0.005
+            end_lr: 0.01
+            step: 1
+
+DATASET:
+    NAMES: 
+    - A
+#    - B
+#    - C

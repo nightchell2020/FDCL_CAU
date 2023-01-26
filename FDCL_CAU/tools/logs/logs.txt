@@ -1,0 +1,637 @@
+[2022-12-10 02:53:25,914-rk0-train.py#263] Version Information: 
+commit : 
+  log  : 
+
+[2022-12-10 02:53:25,915-rk0-train.py#264] config 
+{
+    "META_ARC": "DS_AnomalyDet",
+    "CUDA": true,
+    "TRAIN": {
+        "THR_HIGH": 0.6,
+        "apnchannel": 256,
+        "clsandlocchannel": 256,
+        "groupchannel": 32,
+        "THR_LOW": 0.3,
+        "NEG_NUM": 16,
+        "POS_NUM": 16,
+        "TOTAL_NUM": 64,
+        "PR": 1,
+        "CLS_WEIGHT": 1.0,
+        "LOC_WEIGHT": 2.4,
+        "SHAPE_WEIGHT": 2.0,
+        "BASE_SIZE": 8,
+        "OUTPUT_SIZE": 11,
+        "RESUME": "",
+        "PRETRAINED": 0,
+        "LARGER": 1.0,
+        "LOG_DIR": "./logs",
+        "SNAPSHOT_DIR": "./snapshot",
+        "EPOCH": 100,
+        "START_EPOCH": 0,
+        "BATCH_SIZE": 20,
+        "NUM_GPU": 2,
+        "NUM_WORKERS": 0,
+        "MOMENTUM": 0.9,
+        "WEIGHT_DECAY": 0.0001,
+        "w1": 1.0,
+        "R1": 1.5,
+        "R2": 1.2,
+        "w2": 1.0,
+        "w3": 1.0,
+        "range": 1.0,
+        "MASK_WEIGHT": 1,
+        "PRINT_FREQ": 20,
+        "LOG_GRADS": false,
+        "GRAD_CLIP": 10.0,
+        "BASE_LR": 0.005,
+        "LR": {
+            "TYPE": "log",
+            "KWARGS": {
+                "start_lr": 0.01,
+                "end_lr": 0.0001
+            }
+        },
+        "LR_WARMUP": {
+            "WARMUP": true,
+            "TYPE": "step",
+            "EPOCH": 5,
+            "KWARGS": {
+                "start_lr": 0.005,
+                "end_lr": 0.01,
+                "step": 1
+            }
+        }
+    },
+    "DATASET": {
+        "NEG": 0.2,
+        "GRAY": 0.0,
+        "NAMES": [
+            "A"
+        ],
+        "A": {
+            "ROOT1": "D:/DSdata/A/data2/train/normal",
+            "ROOT2": "D:/DSdata/A/data2/train/pool",
+            "ANNO1": "D:/DSdata/A/data2/train/normal.json",
+            "ANNO2": "D:/DSdata/A/data2/train/pool.json",
+            "NUM_USE": 10000
+        },
+        "B": {
+            "ROOT1": "D:/DSdata/train/B/normal",
+            "ROOT2": "D:/DSdata/train/B/pool",
+            "ANNO1": "D:/DSdata/train/B/normal.json",
+            "ANNO2": "D:/DSdata/train/B/pool.json",
+            "NUM_USE": 10000
+        },
+        "C": {
+            "ROOT": "D:/DSdata/C",
+            "ANNO": "D:/DSdata/C/train.json",
+            "NUM_USE": 100
+        }
+    },
+    "BACKBONE": {
+        "TYPE": "AutoEncoder",
+        "KWARGS": {},
+        "PRETRAINED": "",
+        "TRAIN_LAYERS": [
+            "encoder_layer0",
+            "encoder_layer1",
+            "encoder_layer2",
+            "decoder_layer1",
+            "decoder_layer2"
+        ],
+        "CHANNEL_REDUCE_LAYERS": [],
+        "LAYERS_LR": 0.1,
+        "TRAIN_EPOCH": 10
+    },
+    "HEAD": {
+        "TYPE": "b_cls",
+        "KWARGS": {},
+        "W1": 1.0
+    },
+    "LOSS": {
+        "TYPE": "MSE",
+        "KWARGS": {},
+        "W1": 1.0
+    },
+    "CLASSIFICATOR": {
+        "TYPE": "DSClassificator",
+        "PENALTY_K": 0.08,
+        "WINDOW_INFLUENCE": 0.42,
+        "LR": 0.3,
+        "w1": 1.0,
+        "w2": 1.0,
+        "LARGER": 1.4,
+        "EXEMPLAR_SIZE": 127,
+        "INSTANCE_SIZE": 255,
+        "BASE_SIZE": 8,
+        "STRIDE": 8,
+        "CONTEXT_AMOUNT": 0.5,
+        "LOST_INSTANCE_SIZE": 831,
+        "CONFIDENCE_LOW": 0.85,
+        "CONFIDENCE_HIGH": 0.998,
+        "MASK_THERSHOLD": 0.3
+    }
+}
+[2022-12-10 02:53:31,927-rk0-train.py# 51] Build Train Dataset
+[2022-12-10 02:53:31,928-rk0-dataloader.py# 28] loadingA
+[2022-12-10 02:53:32,169-rk0-dataloader.py# 40] A loaded
+[2022-12-10 02:53:32,170-rk0-dataloader.py# 45] A start-index 0 select [10000/50] path_format {}.mat
+[2022-12-10 02:53:32,171-rk0-dataloader.py#155] shuffle done!
+[2022-12-10 02:53:32,171-rk0-dataloader.py#156] dataset length 10000
+[2022-12-10 02:53:32,171-rk0-train.py# 54] Build Dataset Done !
+[2022-12-10 02:53:32,173-rk0-train.py#302] (WarmUPScheduler) lr spaces: 
+[0.005      0.00574349 0.00659754 0.00757858 0.00870551 0.01
+ 0.0095219  0.00906665 0.00863317 0.00822041 0.00782739 0.00745316
+ 0.00709682 0.00675752 0.00643444 0.0061268  0.00583388 0.00555496
+ 0.00528937 0.00503649 0.00479569 0.00456641 0.00434808 0.0041402
+ 0.00394225 0.00375377 0.0035743  0.00340341 0.0032407  0.00308576
+ 0.00293823 0.00279775 0.00266399 0.00253662 0.00241534 0.00229986
+ 0.00218991 0.00208521 0.00198551 0.00189058 0.00180019 0.00171413
+ 0.00163217 0.00155414 0.00147983 0.00140908 0.00134171 0.00127756
+ 0.00121648 0.00115832 0.00110294 0.00105021 0.001      0.00095219
+ 0.00090666 0.00086332 0.00082204 0.00078274 0.00074532 0.00070968
+ 0.00067575 0.00064344 0.00061268 0.00058339 0.0005555  0.00052894
+ 0.00050365 0.00047957 0.00045664 0.00043481 0.00041402 0.00039423
+ 0.00037538 0.00035743 0.00034034 0.00032407 0.00030858 0.00029382
+ 0.00027977 0.0002664  0.00025366 0.00024153 0.00022999 0.00021899
+ 0.00020852 0.00019855 0.00018906 0.00018002 0.00017141 0.00016322
+ 0.00015541 0.00014798 0.00014091 0.00013417 0.00012776 0.00012165
+ 0.00011583 0.00011029 0.00010502 0.0001    ]
+[2022-12-10 02:53:32,174-rk0-train.py#303] model prepare done
+[2022-12-10 02:53:32,175-rk0-train.py#162] model
+.[31mbackbone[0m (AutoEncoder)
+         .[31mencoder_layer0[0m (BatchNorm1d)
+                        - weight
+                        - bias
+         .[31mencoder_layer1[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mencoder_layer2[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mdecoder_layer1[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+         .[31mdecoder_layer2[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+[2022-12-10 02:54:00,362-rk0-train.py#186] epoch: 2
+[2022-12-10 02:54:00,363-rk0-train.py#191] epoch 2 lr 0.0002871745887492588
+[2022-12-10 02:54:23,313-rk0-train.py#186] epoch: 3
+[2022-12-10 02:54:23,314-rk0-train.py#191] epoch 3 lr 0.0003298769776932236
+[2022-12-10 02:54:46,563-rk0-train.py#186] epoch: 4
+[2022-12-10 02:54:46,564-rk0-train.py#191] epoch 4 lr 0.0003789291416275996
+[2022-12-10 02:54:59,688-rk0-train.py#240] Epoch: [4][0/5] lr: 0.007579
+	batch_time: 3.090736 (4.375079)	data_time: 2.313813 (3.498322)
+	total_loss: 1.861489 (1.873470)	
+[2022-12-10 02:54:59,689-rk0-log_helper.py#102] Progress: 20 / 500 [4%], Speed: 4.375 s/iter, ETA 0:00:35 (D:H:M)
+
+[2022-12-10 02:55:09,553-rk0-train.py#186] epoch: 5
+[2022-12-10 02:55:09,553-rk0-train.py#191] epoch 5 lr 0.00043527528164806224
+[2022-12-10 02:55:32,510-rk0-train.py#186] epoch: 6
+[2022-12-10 02:55:32,510-rk0-train.py#191] epoch 6 lr 0.0005
+[2022-12-10 02:55:55,227-rk0-train.py#186] epoch: 7
+[2022-12-10 02:55:55,227-rk0-train.py#191] epoch 7 lr 0.0004760947677042038
+[2022-12-10 02:56:18,033-rk0-train.py#186] epoch: 8
+[2022-12-10 02:56:18,033-rk0-train.py#191] epoch 8 lr 0.00045333245567064
+[2022-12-10 02:56:31,118-rk0-train.py#240] Epoch: [8][0/5] lr: 0.009067
+	batch_time: 3.076774 (4.473128)	data_time: 2.284891 (3.645828)
+	total_loss: 2.229455 (1.905902)	
+[2022-12-10 02:56:31,118-rk0-log_helper.py#102] Progress: 40 / 500 [8%], Speed: 4.473 s/iter, ETA 0:00:34 (D:H:M)
+
+[2022-12-10 02:56:40,863-rk0-train.py#186] epoch: 9
+[2022-12-10 02:56:40,864-rk0-train.py#191] epoch 9 lr 0.0004316584203505792
+[2022-12-10 02:57:04,820-rk0-train.py#186] epoch: 10
+[2022-12-10 02:57:04,821-rk0-train.py#191] epoch 10 lr 0.00041102063072874506
+[2022-12-10 02:57:28,434-rk0-train.py#180] start training backbone.
+[2022-12-10 02:57:28,435-rk0-train.py#182] model
+.[31mbackbone[0m (AutoEncoder)
+         .[31mencoder_layer0[0m (BatchNorm1d)
+                        - [31mweight[0m
+                        - [31mbias[0m
+         .[31mencoder_layer1[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mencoder_layer2[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mdecoder_layer1[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+         .[31mdecoder_layer2[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+[2022-12-10 02:57:28,435-rk0-train.py#186] epoch: 11
+[2022-12-10 02:57:28,435-rk0-train.py#191] epoch 11 lr 0.0002871745887492588
+[2022-12-10 02:58:28,521-rk0-train.py#263] Version Information: 
+commit : 
+  log  : 
+
+[2022-12-10 02:58:28,522-rk0-train.py#264] config 
+{
+    "META_ARC": "DS_AnomalyDet",
+    "CUDA": true,
+    "TRAIN": {
+        "THR_HIGH": 0.6,
+        "apnchannel": 256,
+        "clsandlocchannel": 256,
+        "groupchannel": 32,
+        "THR_LOW": 0.3,
+        "NEG_NUM": 16,
+        "POS_NUM": 16,
+        "TOTAL_NUM": 64,
+        "PR": 1,
+        "CLS_WEIGHT": 1.0,
+        "LOC_WEIGHT": 2.4,
+        "SHAPE_WEIGHT": 2.0,
+        "BASE_SIZE": 8,
+        "OUTPUT_SIZE": 11,
+        "RESUME": "",
+        "PRETRAINED": 0,
+        "LARGER": 1.0,
+        "LOG_DIR": "./logs",
+        "SNAPSHOT_DIR": "./snapshot",
+        "EPOCH": 100,
+        "START_EPOCH": 0,
+        "BATCH_SIZE": 2,
+        "NUM_GPU": 2,
+        "NUM_WORKERS": 0,
+        "MOMENTUM": 0.9,
+        "WEIGHT_DECAY": 0.0001,
+        "w1": 1.0,
+        "R1": 1.5,
+        "R2": 1.2,
+        "w2": 1.0,
+        "w3": 1.0,
+        "range": 1.0,
+        "MASK_WEIGHT": 1,
+        "PRINT_FREQ": 20,
+        "LOG_GRADS": false,
+        "GRAD_CLIP": 10.0,
+        "BASE_LR": 0.005,
+        "LR": {
+            "TYPE": "log",
+            "KWARGS": {
+                "start_lr": 0.01,
+                "end_lr": 0.0001
+            }
+        },
+        "LR_WARMUP": {
+            "WARMUP": true,
+            "TYPE": "step",
+            "EPOCH": 5,
+            "KWARGS": {
+                "start_lr": 0.005,
+                "end_lr": 0.01,
+                "step": 1
+            }
+        }
+    },
+    "DATASET": {
+        "NEG": 0.2,
+        "GRAY": 0.0,
+        "NAMES": [
+            "A"
+        ],
+        "A": {
+            "ROOT1": "D:/DSdata/A/data2/train/normal",
+            "ROOT2": "D:/DSdata/A/data2/train/pool",
+            "ANNO1": "D:/DSdata/A/data2/train/normal.json",
+            "ANNO2": "D:/DSdata/A/data2/train/pool.json",
+            "NUM_USE": 10000
+        },
+        "B": {
+            "ROOT1": "D:/DSdata/train/B/normal",
+            "ROOT2": "D:/DSdata/train/B/pool",
+            "ANNO1": "D:/DSdata/train/B/normal.json",
+            "ANNO2": "D:/DSdata/train/B/pool.json",
+            "NUM_USE": 10000
+        },
+        "C": {
+            "ROOT": "D:/DSdata/C",
+            "ANNO": "D:/DSdata/C/train.json",
+            "NUM_USE": 100
+        }
+    },
+    "BACKBONE": {
+        "TYPE": "AutoEncoder",
+        "KWARGS": {},
+        "PRETRAINED": "",
+        "TRAIN_LAYERS": [
+            "encoder_layer0",
+            "encoder_layer1",
+            "encoder_layer2",
+            "decoder_layer1",
+            "decoder_layer2"
+        ],
+        "CHANNEL_REDUCE_LAYERS": [],
+        "LAYERS_LR": 0.1,
+        "TRAIN_EPOCH": 10
+    },
+    "HEAD": {
+        "TYPE": "b_cls",
+        "KWARGS": {},
+        "W1": 1.0
+    },
+    "LOSS": {
+        "TYPE": "MSE",
+        "KWARGS": {},
+        "W1": 1.0
+    },
+    "CLASSIFICATOR": {
+        "TYPE": "DSClassificator",
+        "PENALTY_K": 0.08,
+        "WINDOW_INFLUENCE": 0.42,
+        "LR": 0.3,
+        "w1": 1.0,
+        "w2": 1.0,
+        "LARGER": 1.4,
+        "EXEMPLAR_SIZE": 127,
+        "INSTANCE_SIZE": 255,
+        "BASE_SIZE": 8,
+        "STRIDE": 8,
+        "CONTEXT_AMOUNT": 0.5,
+        "LOST_INSTANCE_SIZE": 831,
+        "CONFIDENCE_LOW": 0.85,
+        "CONFIDENCE_HIGH": 0.998,
+        "MASK_THERSHOLD": 0.3
+    }
+}
+[2022-12-10 02:58:34,054-rk0-train.py# 51] Build Train Dataset
+[2022-12-10 02:58:34,054-rk0-dataloader.py# 28] loadingA
+[2022-12-10 02:58:34,295-rk0-dataloader.py# 40] A loaded
+[2022-12-10 02:58:34,296-rk0-dataloader.py# 45] A start-index 0 select [10000/50] path_format {}.mat
+[2022-12-10 02:58:34,297-rk0-dataloader.py#155] shuffle done!
+[2022-12-10 02:58:34,297-rk0-dataloader.py#156] dataset length 10000
+[2022-12-10 02:58:34,297-rk0-train.py# 54] Build Dataset Done !
+[2022-12-10 02:58:34,299-rk0-train.py#302] (WarmUPScheduler) lr spaces: 
+[0.005      0.00574349 0.00659754 0.00757858 0.00870551 0.01
+ 0.0095219  0.00906665 0.00863317 0.00822041 0.00782739 0.00745316
+ 0.00709682 0.00675752 0.00643444 0.0061268  0.00583388 0.00555496
+ 0.00528937 0.00503649 0.00479569 0.00456641 0.00434808 0.0041402
+ 0.00394225 0.00375377 0.0035743  0.00340341 0.0032407  0.00308576
+ 0.00293823 0.00279775 0.00266399 0.00253662 0.00241534 0.00229986
+ 0.00218991 0.00208521 0.00198551 0.00189058 0.00180019 0.00171413
+ 0.00163217 0.00155414 0.00147983 0.00140908 0.00134171 0.00127756
+ 0.00121648 0.00115832 0.00110294 0.00105021 0.001      0.00095219
+ 0.00090666 0.00086332 0.00082204 0.00078274 0.00074532 0.00070968
+ 0.00067575 0.00064344 0.00061268 0.00058339 0.0005555  0.00052894
+ 0.00050365 0.00047957 0.00045664 0.00043481 0.00041402 0.00039423
+ 0.00037538 0.00035743 0.00034034 0.00032407 0.00030858 0.00029382
+ 0.00027977 0.0002664  0.00025366 0.00024153 0.00022999 0.00021899
+ 0.00020852 0.00019855 0.00018906 0.00018002 0.00017141 0.00016322
+ 0.00015541 0.00014798 0.00014091 0.00013417 0.00012776 0.00012165
+ 0.00011583 0.00011029 0.00010502 0.0001    ]
+[2022-12-10 02:58:34,300-rk0-train.py#303] model prepare done
+[2022-12-10 02:58:34,301-rk0-train.py#162] model
+.[31mbackbone[0m (AutoEncoder)
+         .[31mencoder_layer0[0m (BatchNorm1d)
+                        - weight
+                        - bias
+         .[31mencoder_layer1[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mencoder_layer2[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mdecoder_layer1[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+         .[31mdecoder_layer2[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - weight
+                        .[31mbn[0m (BatchNorm1d)
+                           - weight
+                           - bias
+                        .[31mrelu[0m (ReLU)
+[2022-12-10 02:58:52,950-rk0-train.py#240] Epoch: [1][20/50] lr: 0.005000
+	batch_time: 0.830778 (0.931709)	data_time: 0.238363 (0.235470)
+	total_loss: 1.308377 (1.904747)	
+[2022-12-10 02:58:52,950-rk0-log_helper.py#102] Progress: 20 / 5000 [0%], Speed: 0.932 s/iter, ETA 0:01:17 (D:H:M)
+
+[2022-12-10 02:59:09,519-rk0-train.py#240] Epoch: [1][40/50] lr: 0.005000
+	batch_time: 0.829782 (0.879960)	data_time: 0.234374 (0.234548)
+	total_loss: 2.186913 (1.941469)	
+[2022-12-10 02:59:09,519-rk0-log_helper.py#102] Progress: 40 / 5000 [0%], Speed: 0.880 s/iter, ETA 0:01:12 (D:H:M)
+
+[2022-12-10 02:59:25,496-rk0-train.py#186] epoch: 2
+[2022-12-10 02:59:25,496-rk0-train.py#191] epoch 2 lr 0.0002871745887492588
+[2022-12-10 02:59:35,100-rk0-train.py#240] Epoch: [2][10/50] lr: 0.005743
+	batch_time: 0.834768 (1.012909)	data_time: 0.240357 (0.358292)
+	total_loss: 1.170931 (1.898801)	
+[2022-12-10 02:59:35,101-rk0-log_helper.py#102] Progress: 60 / 5000 [1%], Speed: 1.013 s/iter, ETA 0:01:23 (D:H:M)
+
+[2022-12-10 02:59:51,623-rk0-train.py#240] Epoch: [2][30/50] lr: 0.005743
+	batch_time: 0.820806 (0.966142)	data_time: 0.227392 (0.326477)
+	total_loss: 1.941716 (1.906698)	
+[2022-12-10 02:59:51,623-rk0-log_helper.py#102] Progress: 80 / 5000 [1%], Speed: 0.966 s/iter, ETA 0:01:19 (D:H:M)
+
+[2022-12-10 03:00:08,152-rk0-train.py#240] Epoch: [2][0/50] lr: 0.005743
+	batch_time: 0.834768 (0.938117)	data_time: 0.239360 (0.307483)
+	total_loss: 2.776222 (1.887615)	
+[2022-12-10 03:00:08,153-rk0-log_helper.py#102] Progress: 100 / 5000 [2%], Speed: 0.938 s/iter, ETA 0:01:16 (D:H:M)
+
+[2022-12-10 03:00:15,861-rk0-train.py#186] epoch: 3
+[2022-12-10 03:00:15,861-rk0-train.py#191] epoch 3 lr 0.0003298769776932236
+[2022-12-10 03:00:33,684-rk0-train.py#240] Epoch: [3][20/50] lr: 0.006598
+	batch_time: 0.812826 (1.007053)	data_time: 0.219413 (0.380568)
+	total_loss: 2.102614 (1.901384)	
+[2022-12-10 03:00:33,685-rk0-log_helper.py#102] Progress: 120 / 5000 [2%], Speed: 1.007 s/iter, ETA 0:01:21 (D:H:M)
+
+[2022-12-10 03:00:50,164-rk0-train.py#240] Epoch: [3][40/50] lr: 0.006598
+	batch_time: 0.813824 (1.006110)	data_time: 0.217419 (0.379680)
+	total_loss: 1.472772 (1.869327)	
+[2022-12-10 03:00:50,164-rk0-log_helper.py#102] Progress: 140 / 5000 [2%], Speed: 1.006 s/iter, ETA 0:01:21 (D:H:M)
+
+[2022-12-10 03:01:05,970-rk0-train.py#186] epoch: 4
+[2022-12-10 03:01:05,970-rk0-train.py#191] epoch 4 lr 0.0003789291416275996
+[2022-12-10 03:01:15,598-rk0-train.py#240] Epoch: [4][10/50] lr: 0.007579
+	batch_time: 0.823798 (1.004619)	data_time: 0.228390 (0.377795)
+	total_loss: 1.550404 (1.864504)	
+[2022-12-10 03:01:15,598-rk0-log_helper.py#102] Progress: 160 / 5000 [3%], Speed: 1.005 s/iter, ETA 0:01:21 (D:H:M)
+
+[2022-12-10 03:01:32,116-rk0-train.py#240] Epoch: [4][30/50] lr: 0.007579
+	batch_time: 0.820806 (1.004589)	data_time: 0.224401 (0.377825)
+	total_loss: 2.026397 (1.842095)	
+[2022-12-10 03:01:32,116-rk0-log_helper.py#102] Progress: 180 / 5000 [3%], Speed: 1.005 s/iter, ETA 0:01:20 (D:H:M)
+
+[2022-12-10 03:01:48,598-rk0-train.py#240] Epoch: [4][0/50] lr: 0.007579
+	batch_time: 0.837760 (1.004155)	data_time: 0.242352 (0.377401)
+	total_loss: 2.012781 (1.869136)	
+[2022-12-10 03:01:48,598-rk0-log_helper.py#102] Progress: 200 / 5000 [4%], Speed: 1.004 s/iter, ETA 0:01:20 (D:H:M)
+
+[2022-12-10 03:01:56,178-rk0-train.py#186] epoch: 5
+[2022-12-10 03:01:56,178-rk0-train.py#191] epoch 5 lr 0.00043527528164806224
+[2022-12-10 03:02:14,053-rk0-train.py#240] Epoch: [5][20/50] lr: 0.008706
+	batch_time: 0.834768 (1.003367)	data_time: 0.240357 (0.376434)
+	total_loss: 2.977699 (1.863292)	
+[2022-12-10 03:02:14,053-rk0-log_helper.py#102] Progress: 220 / 5000 [4%], Speed: 1.003 s/iter, ETA 0:01:19 (D:H:M)
+
+[2022-12-10 03:02:30,626-rk0-train.py#240] Epoch: [5][40/50] lr: 0.008706
+	batch_time: 0.844742 (1.004305)	data_time: 0.252326 (0.377421)
+	total_loss: 1.454306 (1.892708)	
+[2022-12-10 03:02:30,627-rk0-log_helper.py#102] Progress: 240 / 5000 [4%], Speed: 1.004 s/iter, ETA 0:01:19 (D:H:M)
+
+[2022-12-10 03:02:46,637-rk0-train.py#186] epoch: 6
+[2022-12-10 03:02:46,637-rk0-train.py#191] epoch 6 lr 0.0005
+[2022-12-10 03:02:56,019-rk0-train.py#240] Epoch: [6][10/50] lr: 0.010000
+	batch_time: 0.809834 (1.003906)	data_time: 0.214426 (0.379485)
+	total_loss: 1.971597 (1.924876)	
+[2022-12-10 03:02:56,020-rk0-log_helper.py#102] Progress: 260 / 5000 [5%], Speed: 1.004 s/iter, ETA 0:01:19 (D:H:M)
+
+[2022-12-10 03:03:12,490-rk0-train.py#240] Epoch: [6][30/50] lr: 0.010000
+	batch_time: 0.822800 (1.003402)	data_time: 0.230384 (0.378967)
+	total_loss: 1.617176 (1.913089)	
+[2022-12-10 03:03:12,490-rk0-log_helper.py#102] Progress: 280 / 5000 [5%], Speed: 1.003 s/iter, ETA 0:01:18 (D:H:M)
+
+[2022-12-10 03:03:28,954-rk0-train.py#240] Epoch: [6][0/50] lr: 0.010000
+	batch_time: 0.827295 (1.003203)	data_time: 0.233375 (0.378698)
+	total_loss: 1.431346 (1.923873)	
+[2022-12-10 03:03:28,954-rk0-log_helper.py#102] Progress: 300 / 5000 [6%], Speed: 1.003 s/iter, ETA 0:01:18 (D:H:M)
+
+[2022-12-10 03:03:37,023-rk0-train.py#186] epoch: 7
+[2022-12-10 03:03:37,023-rk0-train.py#191] epoch 7 lr 0.0004760947677042038
+[2022-12-10 03:03:54,882-rk0-train.py#240] Epoch: [7][20/50] lr: 0.009522
+	batch_time: 0.813824 (1.007940)	data_time: 0.219414 (0.384303)
+	total_loss: 1.890008 (1.920316)	
+[2022-12-10 03:03:54,882-rk0-log_helper.py#102] Progress: 320 / 5000 [6%], Speed: 1.008 s/iter, ETA 0:01:18 (D:H:M)
+
+[2022-12-10 03:04:11,528-rk0-train.py#240] Epoch: [7][40/50] lr: 0.009522
+	batch_time: 0.826789 (1.008708)	data_time: 0.233376 (0.385090)
+	total_loss: 1.912455 (1.874158)	
+[2022-12-10 03:04:11,528-rk0-log_helper.py#102] Progress: 340 / 5000 [6%], Speed: 1.009 s/iter, ETA 0:01:18 (D:H:M)
+
+[2022-12-10 03:04:27,489-rk0-train.py#186] epoch: 8
+[2022-12-10 03:04:27,489-rk0-train.py#191] epoch 8 lr 0.00045333245567064
+[2022-12-10 03:04:37,208-rk0-train.py#240] Epoch: [8][10/50] lr: 0.009067
+	batch_time: 0.833771 (1.011581)	data_time: 0.235371 (0.384822)
+	total_loss: 2.860848 (1.892616)	
+[2022-12-10 03:04:37,208-rk0-log_helper.py#102] Progress: 360 / 5000 [7%], Speed: 1.012 s/iter, ETA 0:01:18 (D:H:M)
+
+[2022-12-10 03:04:53,681-rk0-train.py#240] Epoch: [8][30/50] lr: 0.009067
+	batch_time: 0.809835 (1.011606)	data_time: 0.215424 (0.384842)
+	total_loss: 2.458238 (1.922460)	
+[2022-12-10 03:04:53,682-rk0-log_helper.py#102] Progress: 380 / 5000 [7%], Speed: 1.012 s/iter, ETA 0:01:17 (D:H:M)
+
+[2022-12-10 03:05:10,157-rk0-train.py#240] Epoch: [8][0/50] lr: 0.009067
+	batch_time: 0.819808 (1.011735)	data_time: 0.226395 (0.385031)
+	total_loss: 1.405406 (1.961015)	
+[2022-12-10 03:05:10,158-rk0-log_helper.py#102] Progress: 400 / 5000 [8%], Speed: 1.012 s/iter, ETA 0:01:17 (D:H:M)
+
+[2022-12-10 03:05:17,775-rk0-train.py#186] epoch: 9
+[2022-12-10 03:05:17,775-rk0-train.py#191] epoch 9 lr 0.0004316584203505792
+[2022-12-10 03:05:35,648-rk0-train.py#240] Epoch: [9][20/50] lr: 0.008633
+	batch_time: 0.815819 (1.007357)	data_time: 0.220411 (0.379905)
+	total_loss: 1.918589 (1.960871)	
+[2022-12-10 03:05:35,648-rk0-log_helper.py#102] Progress: 420 / 5000 [8%], Speed: 1.007 s/iter, ETA 0:01:16 (D:H:M)
+
+[2022-12-10 03:05:52,171-rk0-train.py#240] Epoch: [9][40/50] lr: 0.008633
+	batch_time: 0.816816 (1.006120)	data_time: 0.221408 (0.378469)
+	total_loss: 1.617278 (1.990067)	
+[2022-12-10 03:05:52,171-rk0-log_helper.py#102] Progress: 440 / 5000 [8%], Speed: 1.006 s/iter, ETA 0:01:16 (D:H:M)
+
+[2022-12-10 03:06:08,594-rk0-train.py#186] epoch: 10
+[2022-12-10 03:06:08,594-rk0-train.py#191] epoch 10 lr 0.00041102063072874506
+[2022-12-10 03:06:18,350-rk0-train.py#240] Epoch: [10][10/50] lr: 0.008220
+	batch_time: 0.834768 (1.011107)	data_time: 0.238363 (0.383405)
+	total_loss: 1.745241 (1.963547)	
+[2022-12-10 03:06:18,350-rk0-log_helper.py#102] Progress: 460 / 5000 [9%], Speed: 1.011 s/iter, ETA 0:01:16 (D:H:M)
+
+[2022-12-10 03:06:34,954-rk0-train.py#240] Epoch: [10][30/50] lr: 0.008220
+	batch_time: 0.839754 (1.012423)	data_time: 0.246341 (0.384602)
+	total_loss: 3.561430 (1.948058)	
+[2022-12-10 03:06:34,955-rk0-log_helper.py#102] Progress: 480 / 5000 [9%], Speed: 1.012 s/iter, ETA 0:01:16 (D:H:M)
+
+[2022-12-10 03:06:51,481-rk0-train.py#240] Epoch: [10][0/50] lr: 0.008220
+	batch_time: 0.856709 (1.012892)	data_time: 0.264293 (0.385270)
+	total_loss: 4.389724 (1.896282)	
+[2022-12-10 03:06:51,482-rk0-log_helper.py#102] Progress: 500 / 5000 [10%], Speed: 1.013 s/iter, ETA 0:01:15 (D:H:M)
+
+[2022-12-10 03:06:59,318-rk0-train.py#180] start training backbone.
+[2022-12-10 03:06:59,319-rk0-train.py#182] model
+.[31mbackbone[0m (AutoEncoder)
+         .[31mencoder_layer0[0m (BatchNorm1d)
+                        - [31mweight[0m
+                        - [31mbias[0m
+         .[31mencoder_layer1[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mencoder_layer2[0m (BasicEncoderBlock)
+                        .[31mconv[0m (Conv1d)
+                             - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+                        .[31mpool[0m (AvgPool1d)
+         .[31mdecoder_layer1[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+         .[31mdecoder_layer2[0m (BasicDecoderBlock)
+                        .[31mtconv[0m (ConvTranspose1d)
+                              - [31mweight[0m
+                        .[31mbn[0m (BatchNorm1d)
+                           - [31mweight[0m
+                           - [31mbias[0m
+                        .[31mrelu[0m (ReLU)
+[2022-12-10 03:06:59,319-rk0-train.py#186] epoch: 11
+[2022-12-10 03:06:59,319-rk0-train.py#191] epoch 11 lr 0.0002871745887492588
