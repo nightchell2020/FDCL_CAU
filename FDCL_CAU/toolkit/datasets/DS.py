@@ -62,8 +62,8 @@ class DSDataset(Dataset):
         pbar = tqdm(meta_data.keys(), desc='loading '+name, ncols=100)
         self.test_signals = {}
         self.ref_signals = {}
-        self.ref_signals = scipy.io.loadmat("D:/DSdata/test/ref/20180101033506.mat") # A:20180101005559 B:
-        # self.ref_signals['20180101005559'] = DSSignal(date='20180101005559', root = 'D:/DSdata/train/A/normal', gt_stat=0, load_sig=False)
+        self.ref_signals = scipy.io.loadmat("/home/one/DSdata/test/ref/20180101005559.mat") # A:20180101005559 B:20180101033506
+
         for date in pbar:
             pbar.set_postfix_str(date)
             self.test_signals[date] = DSSignal(date=date,

@@ -182,14 +182,14 @@ class ClsDataset(Dataset):
         dataset2, index2 = self._find_dataset2(index2)
 
         # get signal
-        sig_left ,sig_right = dataset1.get_positive_pair(index1,index2)
+        sig_left, sig_right = dataset1.get_positive_pair(index1, index2)
         signal_l = scipy.io.loadmat(sig_left[0])
         signal_r = scipy.io.loadmat(sig_right[0])
 
         # get fault
         status1 = int(self._get_status(sig_left[1]))
         status2 = int(self._get_status(sig_right[1]))
-        if status1 == status2 :
+        if status1 == status2:
             status = 0
         else :
             status = 1

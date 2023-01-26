@@ -46,9 +46,9 @@ def main():
     # load config
     cfg.merge_from_file(args.config)
 
-    dataset_root = os.path.join('D:/DSdata/test', args.dataset)
+    dataset_root = os.path.join('/home/one/DSdata/test', args.dataset)
 
-    for epoch in range(0, 1000):
+    for epoch in range(987, 988):
         snapshot = 'snapshot/checkpoint_e{}.pth'.format(epoch+1)
         # create model
         model = ModelBuilder()
@@ -71,7 +71,7 @@ def main():
         pred_statuses = []
         tic = cv2.getTickCount()
         ref_signals = dataset.ref_signals
-        ref_signal = torch.tensor(ref_signals['sig'].reshape((1, 13, 131072)), dtype=torch.float32).cuda()
+        ref_signal = torch.tensor(ref_signals['newsig'].reshape((1, 13, 131072)), dtype=torch.float32).cuda()
         classificator.init(ref_signal)
 
         for idx, test_signals in enumerate(dataset):
@@ -85,7 +85,7 @@ def main():
                 cv2.destroyAllWindows()
 
         # save results
-        signal_path = os.path.join('results', 'B', model_name)
+        signal_path = os.path.join('results', args.dataset, model_name)
         if not os.path.isdir(signal_path):
             os.makedirs(signal_path)
         result_path = os.path.join(signal_path, '{}.txt'.format(dataset.name))

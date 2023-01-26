@@ -34,7 +34,7 @@ def evaluation(dataset='B', cls_prefix='', cls_path='./results', num=4):
     num = min(num, len(classificators))
 
     root = os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                         'D:/DSdata/test'))
+                                         '/home/one/DSdata/test'))
     root = os.path.join(root, dataset)
 
     dataset = DSDataset(dataset,root)

@@ -7,7 +7,7 @@ import json
 from collections import OrderedDict
 
 
-dataset_path = 'D:/DSdata/test/B'#'D:/DSdata/train/B/normal' #'D:/DSdata/A/data'
+dataset_path = '/home/one/DSdata/train/A/pool/' #'D:/DSdata/train/B/normal' #'D:/DSdata/A/data'
 # dataset_path = 'D:/DSdata/test/A'
 
 
@@ -40,7 +40,7 @@ def parse_and_sched(dl_dir='.'):
         if date not in js:
             js[date] = {}
         js[date] = status
-    json.dump(js,open('B.json','w'), indent=4, sort_keys=True)
+    json.dump(js,open('pool.json','w'), indent=4, sort_keys=True)
 
     print('All signals downloaded')
 if __name__ == '__main__':

@@ -14,9 +14,9 @@ from pysot.models.loss import make_loss_evaluator
 
 class ModelBuilder(nn.Module):
     def __init__(self):
-        super(ModelBuilder,self).__init__()
+        super(ModelBuilder, self).__init__()
 
-        self.type = "AEcls" #or "Siam"
+        self.type = "Siam" #"AEcls" or "Siam"
         # build backbone
         self.backbone = get_backbone(cfg.BACKBONE.TYPE,
                                      **cfg.BACKBONE.KWARGS)

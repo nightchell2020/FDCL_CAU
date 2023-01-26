@@ -35,7 +35,7 @@ class Signal(object):
         if isinstance(classificator_names, str):
             classificator_names = [classificator_names]
         for name in classificator_names:
-            stat_file = os.path.join(path, name, 'B' + '.txt')
+            stat_file = os.path.join(name, 'A' +'.txt')
             if os.path.exists(stat_file):
                 with open(stat_file, 'r') as f :
                     pred_stat = [list(map(float, x.strip().split(',')))

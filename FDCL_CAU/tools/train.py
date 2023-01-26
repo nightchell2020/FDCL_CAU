@@ -171,8 +171,10 @@ def train(train_loader, model, optimizer, lr_scheduler, tb_writer):
                          'state_dict': model.module.state_dict(),
                          'optimizer': optimizer.state_dict()},
                         cfg.TRAIN.SNAPSHOT_DIR+'/checkpoint_e%d.pth' % (epoch))
+
             train_plotter.log('total_loss', average_meter.total_loss.avg)
             train_plotter.plot('Losses', ['total_loss'], filename='Losses.png')
+
             if epoch == cfg.TRAIN.EPOCH:
                 return
 
@@ -243,10 +245,242 @@ def train(train_loader, model, optimizer, lr_scheduler, tb_writer):
                             cfg.TRAIN.EPOCH * num_per_epoch)
         end = time.time()
 
+def train_single(train_loader, model, optimizer, lr_scheduler, tb_writer):
+    cur_lr = lr_scheduler.get_cur_lr()
+    rank = get_rank()
 
+    average_meter = AverageMeter()
+
+    def is_valid_number(x):
+        return not(math.isnan(x) or math.isinf(x) or x > 1e4)
+
+    world_size = get_world_size()
+    num_per_epoch = len(train_loader.dataset) // \
+        cfg.TRAIN.EPOCH // (cfg.TRAIN.BATCH_SIZE * world_size)
+    start_epoch = cfg.TRAIN.START_EPOCH
+    epoch = start_epoch
+
+    attributes = [('total_loss', 1)]
+    train_plotter = Plotter(attributes)
+
+    if not os.path.exists(cfg.TRAIN.SNAPSHOT_DIR) and \
+            get_rank() == 0:
+        os.makedirs(cfg.TRAIN.SNAPSHOT_DIR)
+
+    logger.info("model\n{}".format(describe(model)))
+    end = time.time()
+    for idx, data in enumerate(train_loader):
+        if epoch != idx // num_per_epoch + start_epoch:
+            epoch = idx // num_per_epoch + start_epoch
+
+            if get_rank() == 0:
+                torch.save(
+                        {'epoch': epoch,
+                         'state_dict': model.state_dict(),
+                         'optimizer': optimizer.state_dict()},
+                        cfg.TRAIN.SNAPSHOT_DIR+'/checkpoint_e%d.pth' % (epoch))
+
+            train_plotter.log('total_loss', average_meter.total_loss.avg)
+            train_plotter.plot('Losses', ['total_loss'], filename='Losses.png')
+
+            if epoch == cfg.TRAIN.EPOCH:
+                return
+
+            if cfg.BACKBONE.TRAIN_EPOCH == epoch:
+                logger.info('start training backbone.')
+                optimizer, lr_scheduler = build_opt_lr(model, epoch)
+                logger.info("model\n{}".format(describe(model)))
+
+            lr_scheduler.step(epoch)
+            cur_lr = lr_scheduler.get_cur_lr()
+            logger.info('epoch: {}'.format(epoch+1))
+        tb_idx = idx + start_epoch * num_per_epoch
+        if idx % num_per_epoch == 0 and idx != 0:
+            for idx, pg in enumerate(optimizer.param_groups):
+                logger.info('epoch {} lr {}'.format(epoch+1, pg['lr']))
+                if rank == 0:
+                    tb_writer.add_scalar('lr/group{}'.format(idx+1),
+                                         pg['lr'], tb_idx)
+
+        data_time = average_reduce(time.time() - end)
+        if rank == 0:
+            tb_writer.add_scalar('time/data', data_time, tb_idx)
+
+        outputs = model(data)
+        loss = outputs['total_loss'].mean()
+
+        if is_valid_number(loss.data.item()):
+            optimizer.zero_grad()
+            loss.requires_grad_(True)
+            loss.backward()
+            reduce_gradients(model)
+
+            if rank == 0 and cfg.TRAIN.LOG_GRADS:
+                log_grads(model, tb_writer, tb_idx)
+
+            # clip gradient
+            clip_grad_norm_(model.parameters(), cfg.TRAIN.GRAD_CLIP)
+            optimizer.step()
+
+        batch_time = time.time() - end
+        batch_info = {}
+        batch_info['batch_time'] = average_reduce(batch_time)
+        batch_info['data_time'] = average_reduce(data_time)
+        for k, v in sorted(outputs.items()):
+            batch_info[k] = average_reduce(v.mean().data.item())
+
+        average_meter.update(**batch_info)
+
+        if rank == 0:
+            for k, v in batch_info.items():
+                tb_writer.add_scalar(k, v, tb_idx)
+
+            if (idx+1) % cfg.TRAIN.PRINT_FREQ == 0:
+                info = "Epoch: [{}][{}/{}] lr: {:.6f}\n".format(
+                            epoch+1, (idx+1) % num_per_epoch,
+                            num_per_epoch, cur_lr)
+                for cc, (k, v) in enumerate(batch_info.items()):
+                    if cc % 2 == 0:
+                        info += ("\t{:s}\t").format(
+                                getattr(average_meter, k))
+                    else:
+                        info += ("{:s}\n").format(
+                                getattr(average_meter, k))
+                logger.info(info)
+                print_speed(idx+1+start_epoch*num_per_epoch,
+                            average_meter.batch_time.avg,
+                            cfg.TRAIN.EPOCH * num_per_epoch)
+
+        if (epoch + 1) == cfg.TRAIN.EPOCH:
+            print('last epoch save')
+            if get_rank() == 0:
+                torch.save(
+                    {'epoch': epoch,
+                     'state_dict': model.state_dict(),
+                     'optimizer': optimizer.state_dict()},
+                    cfg.TRAIN.SNAPSHOT_DIR + '/checkpoint_e%d.pth' % (epoch + 2))
+
+        end = time.time()
+
+def train_parallel(train_loader, model, optimizer, lr_scheduler, tb_writer):
+    cur_lr = lr_scheduler.get_cur_lr()
+    rank = get_rank()
+
+    average_meter = AverageMeter()
+
+    def is_valid_number(x):
+        return not(math.isnan(x) or math.isinf(x) or x > 1e4)
+
+    world_size = get_world_size()
+    num_per_epoch = len(train_loader.dataset) // \
+        cfg.TRAIN.EPOCH // (cfg.TRAIN.BATCH_SIZE * world_size)
+    start_epoch = cfg.TRAIN.START_EPOCH
+    epoch = start_epoch
+
+    attributes = [('total_loss', 1)]
+    train_plotter = Plotter(attributes)
+
+    if not os.path.exists(cfg.TRAIN.SNAPSHOT_DIR) and \
+            get_rank() == 0:
+        os.makedirs(cfg.TRAIN.SNAPSHOT_DIR)
+
+    logger.info("model\n{}".format(describe(model.module)))
+    end = time.time()
+    for idx, data in enumerate(train_loader):
+        if epoch != idx // num_per_epoch + start_epoch:
+            epoch = idx // num_per_epoch + start_epoch
+
+            if get_rank() == 0:
+                torch.save(
+                        {'epoch': epoch,
+                         'state_dict': model.module.state_dict(),
+                         'optimizer': optimizer.state_dict()},
+                        cfg.TRAIN.SNAPSHOT_DIR+'/checkpoint_e%d.pth' % (epoch))
+
+            train_plotter.log('total_loss', average_meter.total_loss.avg)
+            train_plotter.plot('Losses', ['total_loss'], filename='Losses.png')
+
+            if epoch == cfg.TRAIN.EPOCH:
+                return
+
+            if cfg.BACKBONE.TRAIN_EPOCH == epoch:
+                logger.info('start training backbone.')
+                optimizer, lr_scheduler = build_opt_lr(model.module, epoch)
+                logger.info("model\n{}".format(describe(model.module)))
+
+            lr_scheduler.step(epoch)
+            cur_lr = lr_scheduler.get_cur_lr()
+            logger.info('epoch: {}'.format(epoch+1))
+        tb_idx = idx + start_epoch * num_per_epoch
+        if idx % num_per_epoch == 0 and idx != 0:
+            for idx, pg in enumerate(optimizer.param_groups):
+                logger.info('epoch {} lr {}'.format(epoch+1, pg['lr']))
+                if rank == 0:
+                    tb_writer.add_scalar('lr/group{}'.format(idx+1),
+                                         pg['lr'], tb_idx)
+
+        data_time = average_reduce(time.time() - end)
+        if rank == 0:
+            tb_writer.add_scalar('time/data', data_time, tb_idx)
+
+        outputs = model(data, idx+1)
+        loss = outputs['total_loss'].mean()
+
+        if is_valid_number(loss.data.item()):
+            optimizer.zero_grad()
+            loss.backward()
+            reduce_gradients(model)
+
+            if rank == 0 and cfg.TRAIN.LOG_GRADS:
+                log_grads(model.module, tb_writer, tb_idx)
+
+            # clip gradient
+            clip_grad_norm_(model.parameters(), cfg.TRAIN.GRAD_CLIP)
+            optimizer.step()
+
+        batch_time = time.time() - end
+        batch_info = {}
+        batch_info['batch_time'] = average_reduce(batch_time)
+        batch_info['data_time'] = average_reduce(data_time)
+        for k, v in sorted(outputs.items()):
+            batch_info[k] = average_reduce(v.mean().data.item())
+
+        average_meter.update(**batch_info)
+
+        if rank == 0:
+            for k, v in batch_info.items():
+                tb_writer.add_scalar(k, v, tb_idx)
+
+            if (idx+1) % cfg.TRAIN.PRINT_FREQ == 0:
+                info = "Epoch: [{}][{}/{}] lr: {:.6f}\n".format(
+                            epoch+1, (idx+1) % num_per_epoch,
+                            num_per_epoch, cur_lr)
+                for cc, (k, v) in enumerate(batch_info.items()):
+                    if cc % 2 == 0:
+                        info += ("\t{:s}\t").format(
+                                getattr(average_meter, k))
+                    else:
+                        info += ("{:s}\n").format(
+                                getattr(average_meter, k))
+                logger.info(info)
+                print_speed(idx+1+start_epoch*num_per_epoch,
+                            average_meter.batch_time.avg,
+                            cfg.TRAIN.EPOCH * num_per_epoch)
+
+        if (epoch + 1) == cfg.TRAIN.EPOCH:
+            print('last epoch save')
+            if get_rank() == 0:
+                torch.save(
+                    {'epoch': epoch,
+                     'state_dict': model.module.state_dict(),
+                     'optimizer': optimizer.state_dict()},
+                    cfg.TRAIN.SNAPSHOT_DIR + '/checkpoint_e%d.pth' % (epoch + 2))
+
+        end = time.time()
 def main():
+    mode = 'single'
+    # mode = 'parallel'
     rank, world_size = dist_init()
-    # rank = 0
     logger.info("init done")
 
     # load cfg
@@ -264,8 +498,11 @@ def main():
         logger.info("config \n{}".format(json.dumps(cfg, indent=4)))
 
     # create model
-    model = ModelBuilder().train()
-    dist_model = nn.DataParallel(model).cuda()
+    if mode == 'single':
+        model = ModelBuilder().train().cuda()
+    else:
+        model = ModelBuilder().train()
+        dist_model = nn.DataParallel(model).cuda()
 
     # load pretrained backbone weights
     if cfg.BACKBONE.PRETRAINED:
@@ -283,8 +520,12 @@ def main():
     train_loader = build_data_loader()
 
     # build optimizer and lr_scheduler
-    optimizer, lr_scheduler = build_opt_lr(dist_model.module,
-                                           cfg.TRAIN.START_EPOCH)
+    if mode == 'single':
+        optimizer, lr_scheduler = build_opt_lr(model,
+                                               cfg.TRAIN.START_EPOCH)
+    else:
+        optimizer, lr_scheduler = build_opt_lr(dist_model.module,
+                                               cfg.TRAIN.START_EPOCH)
 
     # resume training
     if cfg.TRAIN.RESUME:
@@ -293,17 +534,24 @@ def main():
             '{} is not a valid file.'.format(cfg.TRAIN.RESUME)
         model, optimizer, cfg.TRAIN.START_EPOCH = \
             restore_from(model, optimizer, cfg.TRAIN.RESUME)
+
+
     # load pretrain
     elif cfg.TRAIN.PRETRAINED:
         load_pretrain(model, cfg.TRAIN.PRETRAINED)
-
-    dist_model = nn.DataParallel(model)
+    # dist_model = DistModule(model)
+    if mode == 'parallel':
+        dist_model = nn.DataParallel(model)
 
     logger.info(lr_scheduler)
     logger.info("model prepare done")
 
     # start training
-    train(train_loader, dist_model, optimizer, lr_scheduler, tb_writer)
+    if mode == 'single':
+        train_single(train_loader, model, optimizer, lr_scheduler, tb_writer)
+    else:
+        train_parallel(train_loader, dist_model, optimizer, lr_scheduler, tb_writer)
+
 
 
 if __name__ == '__main__':

@@ -1,10 +1,10 @@
 META_ARC: "DS_AnomalyDet"
 
 BACKBONE:
-    TYPE: "AutoEncoder" #"WDCNN"
+    TYPE: "WDCNN" #"AutoEncoder" "WDCNN"
     PRETRAINED:  ''
-#    TRAIN_LAYERS: ['layer0','layer1','layer2','layer3','layer4','layer5'] # WDCNN
-    TRAIN_LAYERS: ['encoder_layer0','encoder_layer1','encoder_layer2','decoder_layer1', 'decoder_layer2']
+    TRAIN_LAYERS: ['layer2','layer3','layer4','layer5'] # WDCNN
+#    TRAIN_LAYERS: ['encoder_layer0','encoder_layer1','encoder_layer2','decoder_layer1', 'decoder_layer2']
     TRAIN_EPOCH: 10 
     LAYERS_LR: 0.1
 
@@ -19,26 +19,24 @@ CLASSIFICATOR:
     w2: 1.0
 
 LOSS:
-#    TYPE : 'BCE'
-    TYPE : 'MSE'
+    TYPE : 'BCE'
+#    TYPE : 'MSE'
 #    TYPE : 'CE'
 
 HEAD :
-    TYPE : 'b_cls'
+    TYPE : 'cossim' #'b_cls'
 
 TRAIN:
     EPOCH: 100
     START_EPOCH: 0  
     BATCH_SIZE: 2
-    NUM_GPU: 2
+    NUM_GPU: 1
     BASE_LR: 0.005
     RESUME: '' #'./snapshot/checkpoint_e871.pth'
     WEIGHT_DECAY : 0.0001 
     PRETRAINED: 0
     OUTPUT_SIZE: 11
     NUM_WORKERS: 0 #6
-    LOC_WEIGHT: 2.4
-    CLS_WEIGHT: 1.0
     w1: 1.0
     w2: 1.0
     w3: 1.0
